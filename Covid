@@ -5,12 +5,47 @@ import matplotlib.pyplot as plt
 1.1. Парсинг данных
 
 # Загрузка данных из репозитория
-df=pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
+DataFrame=pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
 
-df.head()
+#отображение данных
+DataFrame.head()
 (появляются столбцы)
 
 # Приведение типов
-df['date']=pd.to_datetime(df['date'])
+DataFrame['date']=pd.to_datetime(DataFrame['date'])
 
-df.info()
+DataFrame.info()
+
+#Выбор пустых значений
+pd.set_option('display.max_rows',None)
+DataFrame.isnull().sum()
+
+
+Все данные при парсинге из репозитория были включены. Размерность набора данных составляет 183348 строк и 67 столбцов
+
+Дополним набор данных новой информацией, чтобы в случае необходимости точность модели при обучении была больше. Также новые данные могут пригодиться для того, чтобы включить их в аналих данных, из которого можно вынести некоторые зависимости, если они присутствует.
+
+В качестве новых данных возьмём среднее количество смертей и заражённых на регион.
+
+pd.set_option('display.max_rows',10)
+DataFrame.shape
+
+# Заполнение пустых полей
+DataFrame[['location', 'new_cases', 'new_deaths']]=DataFrame[['location', 'new_cases', 'new_deaths']].fillna(0)
+
+# Формирование дополнительных атрибутов
+cases=DataFrame[['location', 
+                  'new_cases', 
+                  'new_deaths']].groupby(by="location").mean().rename(columns={'new_cases':'mean_new_cases', 
+                                                                               'new_deaths':'mean_new_deaths'})
+#отобразим резултат
+cases
+
+
+DataFrame=DataFrame.merge(grouped_cases, on='location')
+DataFrame.head()
+
+(columns)
+
+Генерация новых данных произведена
+
